@@ -2,7 +2,6 @@ import zippy, cligen
 import strutils, os
 import std/prelude
 import zippy/ziparchives
-# import print
 
 iterator allSheets(): string =
   for path in walkPattern(getAppDir() / "unzipped" / "xl" / "worksheets" / "sheet*.xml"):
@@ -19,9 +18,7 @@ proc breakProtection(sheet, data: string): string =
       echo "Ender not found... error"
       return
     endPos.inc ender.len
-    # print sheet, "protected", pos, endPos
     result.delete(pos..endPos - 1)
-
 
 proc remove(path: string) =
   if not path.endswith(".xlsx"):
@@ -33,7 +30,8 @@ proc remove(path: string) =
   try:
     extractAll(path, getAppDir() / "unzipped")
   except:
-    discard
+    echo "Could not extract excel file: ", path
+    return
   for sheet in allSheets():
     var data = readFile(sheet)
     let dataBroken = breakProtection(sheet, data)
@@ -46,6 +44,5 @@ proc remove(path: string) =
   removeDir(unzipPath)
 
 when isMainModule:
-  # remove("""c:\Users\david\AppData\Local\Temp\martinSchr\2021_MembersIBC2.xlsx""")
   dispatch(remove)
 
